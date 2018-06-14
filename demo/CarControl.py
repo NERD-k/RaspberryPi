@@ -9,39 +9,38 @@ except RuntimeError:
 
 class Car():
     def __init__(self, run_in1, run_in2, run_ena, steer_pwm):
+        '''
+        GPIO接口模式：BCM
+        '''
+        GPIO.setmode(GPIO.BCM)
 
-    '''
-    GPIO接口模式：BCM
-    '''
-    GPIO.setmode(GPIO.BCM)
+        self.run_in1 = run_in1 
+        self.run_in2 = run_in2 
+        self.run_ena = run_ena 
+        self.steer_pwm = steer_pwm 
 
-    self.run_in1 = run_in1 
-    self.run_in2 = run_in2 
-    self.run_ena = run_ena 
-    self.steer_pwm = steer_pwm 
-
-    GPIO.setup(self.run_in1, GPIO.OUT)
-    GPIO.setup(self.run_in2, GPIO.OUT)
-    GPIO.setup(self.run_ena, GPIO.OUT)
-    GPIO.setup(self.steer_pwm, GPIO.OUT)
+        GPIO.setup(self.run_in1, GPIO.OUT)
+        GPIO.setup(self.run_in2, GPIO.OUT)
+        GPIO.setup(self.run_ena, GPIO.OUT)
+        GPIO.setup(self.steer_pwm, GPIO.OUT)
 
     '''
     向前
     '''
-    def forward(self):
+    def forward(self, speed):
         GPIO.output(self.run_in1, GPIO.HIGH)
         GPIO.output(self.run_in2, GPIO.LOW)
-        self.p = GPIO.PWM(self.run_ena, ***)
-        self.p.start(***)
+        self.p = GPIO.PWM(self.run_ena, 500)
+        self.p.start(speed)
 
     '''
     向后
     '''
-    def backward(self):
+    def backward(self, speed):
         GPIO.output(self.run_in1, GPIO.LOW)
         GPIO.output(self.run_in2, GPIO.HIGH)
-        self.p = GPIO.PWM(self.run_ena, ***)
-        self.p.start(***)
+        self.p = GPIO.PWM(self.run_ena, 500)
+        self.p.start(speed)
 
     '''
     刹车
@@ -60,7 +59,7 @@ class Car():
     '''
     转向
     '''
-    def steer(self):
-        self.p = GPIO.PWM(self.steer_pwm, ***)
-        self.p.start(***)
+    def steer(self, angle):
+        self.p = GPIO.PWM(self.steer_pwm, Freq)
+        self.p.start(angle)
 
