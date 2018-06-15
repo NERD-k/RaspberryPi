@@ -63,3 +63,16 @@ class Car():
         self.p = GPIO.PWM(self.steer_pwm, Freq)
         self.p.start(angle)
 
+    '''
+    清除GPIO的模式
+    '''
+    def cleanup(self):
+        GPIO.cleanup()
+class Control():
+    def speed():
+        return
+
+    def angle():
+        return
+
+
