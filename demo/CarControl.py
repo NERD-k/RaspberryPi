@@ -6,7 +6,9 @@ try:
 except RuntimeError:
     print("Error importing RPi.GPIO!")
 
-
+'''
+小车硬件控制
+'''
 class Car():
     def __init__(self, run_in1, run_in2, run_ena, steer_pwm):
         '''
@@ -68,11 +70,16 @@ class Car():
     '''
     def cleanup(self):
         GPIO.cleanup()
-class Control():
-    def speed():
-        return
 
-    def angle():
-        return
+
+'''
+小车软件驱动
+'''
+class CarMove():
+    def __init__(self, speed, angle):
+        self.speed = speed
+        self.angle = angle
+
+    def move(self):
 
 

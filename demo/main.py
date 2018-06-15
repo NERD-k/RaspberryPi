@@ -24,7 +24,12 @@ def router():
 '''
 得分操作
 '''
-def Score():
+def score():
+
+'''
+小车状态监控
+'''
+def carStatus():
 
 
 def main():
