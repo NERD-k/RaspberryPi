@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+from math import abs
+
 try:
     import RPi.GPIO as GPIO
 except RuntimeError:
@@ -106,13 +108,13 @@ class CarMove():
 
     def move(self):
         if self._speed > 0:
-            forward(self._speed)
+           Car.forward(self._speed)
         elif speed < 0:
             self._speed = abs(self._speed)
-            backward(self._speed)
+            Car.backward(self._speed)
         else:
-            stay()
+            Car.stay()
 
     def turn(self):
-        steer(self._angle)
+        Car.steer(self._angle)
 

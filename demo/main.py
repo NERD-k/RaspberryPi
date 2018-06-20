@@ -1,35 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import CarControl
+import L298NHBridge
 
-'''
-图像处理
-'''
-class ImageProcess():
-
-
-
-'''
-定位
-'''
-def position():
-
-
-'''
-路线计算
-'''
-def router():
-
-'''
-得分操作
-'''
-def score():
-
-'''
-小车状态监控
-'''
-def carStatus():
 
 
 def main():
