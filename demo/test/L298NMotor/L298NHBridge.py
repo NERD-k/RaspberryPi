@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Author:
-# Data:
-# Version:
-#Thanks for origin Author's kevin
+# Autor:        孔NERD
+# Date:         2018-6-22
+# Version:      1.0
+#Thanks for origin Autor's Ingmar Stape and kevin
 
 # This module is designed to control two motors with a L298N H-Bridge
 
@@ -122,7 +122,7 @@ class HBridge(object):
             # Stopp mode for the left motor
             self.setMotorMode("motor1", "stopp")
             pwm = 0
-#       print("SetMotorLeft", pwm)
+#       print "SetMotorLeft", pwm
         self.motor1pwm.ChangeDutyCycle(pwm)
 
 # SetMotorRight(power)
