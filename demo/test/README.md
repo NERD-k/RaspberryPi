@@ -1,15 +1,11 @@
-# raspberry
-Some raspberry pi3 common driver python module :
+### 文件功能测试
 
-1.L298N bridge driver two motors use pwm
+`L298NHBridge.py` L298NH桥驱动文件
 
-2.Hscr04 sensor  driver get distance
+`L298NHBridgeTest.py` 测试L298NH桥的功能 
 
-3.LIRC dirver for remote control
-  Init install
-	1,sudo vi /boot/config.txt
-	   add: doverlay=lirc-rpi
-    2, sudo apt-get install lirc
-	3, sudo reboot 
-	4, sudo mode2 –d /dev/lirc0
-	   press button for control and test module is not working
+`ImageProcess.py`  图像处理文件
+
+`main_demo.py`  
+
+`main.py`
