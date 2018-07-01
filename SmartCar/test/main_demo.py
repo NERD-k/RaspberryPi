@@ -5,7 +5,7 @@
 # Data:         2018-6-24
 # Version:      1.0
 
-from L298NHBridge import HBrige
+from L298NHBridge import HBridge
 from ImageProcess import ProcessData
 
 def Init(self):
@@ -18,7 +18,12 @@ Motors.setMotorRun(speed_run)
 Motors.setMotorRun(angle_steer)
 
 def main:
-    Init()
+    Init(self)
+    while True:
+        try:
+            pass
+        RuntimeError:
+            pass
 
 if __name__ = "main":
     main()
