@@ -22,7 +22,7 @@ def main:
     while True:
         try:
             pass
-        RuntimeError:
+        expect RuntimeError:
             pass
 
 if __name__ = "main":

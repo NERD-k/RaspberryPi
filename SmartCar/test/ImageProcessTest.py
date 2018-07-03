@@ -9,9 +9,7 @@ import numpy
 from collections import Counter
 from L298NHBridge import HBridge
 
-Motors = HBridge(19, 26, 23, 24, 13, 21, 22)
-speedrun = 0
-anglesteer = 0
+    
 while True:
     with PiCamera() as camera:
         stream = BytesIO()
