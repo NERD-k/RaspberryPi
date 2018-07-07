@@ -13,9 +13,10 @@ from L298NHBridge import HBridge
 
 IS_TEST = True
 DEBUG = False
+
 if IS_TEST:
     DEBUG = True
-    LOG_PATH = '/home/pi/smartcar.log')
+    LOG_PATH = '/home/pi/smartcar.log'
 
 def log(*args, **kwargs):
     s = ' '.join(args)
@@ -31,13 +32,13 @@ def log(*args, **kwargs):
             except:
                 f.write('log failed.' + '\n')
 
-def Init(self):
+def Init():
     Motors = HBridge(19, 26, 23, 24, 13, 21, 22)
     speed_run = 0
     angle_steer = 0
 
 
-def Image(self):
+def Image():
     with PiCamera() as camera:
         stream = BytesIO()
         camera.capture_continuous(stream, format='png')
@@ -52,17 +53,17 @@ def Image(self):
         stream.seek(0)
 
 def main():
-    Init(self)
+    Init()
     while True:
         try:
-            Image(self)
+            Image()
             Motors.setMotorRun(20)
-        except:
+        except RuntimeError:
             print("Error, out of main loop!")
 
-        log('speed: ' + pkg = speed_run)
-        log('Image: ' + pkg = {counter})
+        #log('speed: ' + speed_run)
+        #log('Image: ' + {counter})
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     main()
 
