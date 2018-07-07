@@ -15,7 +15,7 @@ IS_TEST = True
 DEBUG = False
 if IS_TEST:
     DEBUG = True
-    LOG_PATH = '/home/pi/smartcar.log')
+    LOG_PATH = '/home/pi/smartcar.log'
 
 def log(*args, **kwargs):
     s = ' '.join(args)
