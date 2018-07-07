@@ -40,23 +40,23 @@ def Init(self):
 def Image(self):
     with PiCamera() as camera:
         stream = BytesIO()
-        camera.capture_continuous(stream, format='png'):
-            stream.truncate()
-            strea.seek(0)
+        camera.capture_continuous(stream, format='png')
+        stream.truncate()
+        strea.seek(0)
 
-            image = Image.open(stream)
-            r, g, b = image.spilt()
-            r.save('/home/pi/Image/Image{counter}')
+        image = Image.open(stream)
+        r, g, b = image.spilt()
+        r.save('/home/pi/Image/Image{counter}')
  
-            stream.truncate()
-            stream.seek(0)
+        stream.truncate()
+        stream.seek(0)
 
 def main():
     Init(self)
     while True:
         try:
             Image(self)
-            Motors.setMotorRun(speed_run)
+            Motors.setMotorRun(20)
         except:
             print("Error, out of main loop!")
 
