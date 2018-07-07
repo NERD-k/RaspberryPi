@@ -19,6 +19,8 @@ if IS_TEST:
 
 def log(*args, **kwargs):
     s = ' '.join(args)
+    if 'pkt' in kwargs and DEBUG == True:
+        s += '\n\tinfo: ' + kwargs['pkt']
     s += ''
     print(s)
     if DEBUG:
@@ -53,9 +55,13 @@ def main():
     Init(self)
     while True:
         try:
-            pass
+            Image(self)
+            Motors.setMotorRun(speed_run)
         except:
             print("Error, out of main loop!")
+
+        log('speed: ' + pkg = speed_run)
+        log('Image: ' + pkg = {counter})
 
 if __name__ = '__main__':
     main()

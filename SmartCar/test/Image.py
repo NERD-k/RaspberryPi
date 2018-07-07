@@ -13,23 +13,24 @@ from L298NHBridge import HBridge
 while True:
     with PiCamera() as camera:
         stream = BytesIO()
-        for foo in camera.capture_continuous(stream, format='png'):
+        timeAllStart = time.time()
+        for foo in camera.capture_continuous(stream, format='jpeg'):
             # Truncate the stream to the current position (in case
             # prior iterations output a longer image)
-            #PicStart = time.time()
             stream.truncate()
             stream.seek(0)
+            # 计时
+            timeImageStart = time.time()
+
             #if process(stream):
                 # 获取Image对象
             image = Image.open(stream)
-            iamge.save('/home/pi/Desktop/Image{counter}.png')
                 # RGB 通道分离
             r, g, b = image.split()
                 # 对红色通道图像加强对比度
                 #enh_con = ImageEnhance.Contrast(r)  
                 #contrast = 2
                 #buff = enh_con.enhance(contrast)
-            r.save('/home/pi/Desktop/ImageR{counter}.png')
             arrayIm = numpy.array(r)
             buff = numpy.where(arrayIm == arrayIm.max())
             hang = Counter(buff[0])
