@@ -13,12 +13,15 @@ from L298NHBridge import HBridge
 while True:
     with PiCamera() as camera:
         stream = BytesIO()
+        timeAllStart = time.time()
         for foo in camera.capture_continuous(stream, format='jpeg'):
             # Truncate the stream to the current position (in case
             # prior iterations output a longer image)
-            #PicStart = time.time()
             stream.truncate()
             stream.seek(0)
+            # 计时
+            timeImageStart = time.time()
+
             #if process(stream):
                 # 获取Image对象
             image = Image.open(stream)
@@ -38,20 +41,22 @@ while True:
             #PicStop = time.time()
             #RunStart = time.time()
             if hang1 < 700:
-                speedrun = 0.15
+                speedrun = 0.2
             else:
-                speedrun = 0
+                speedrun = 0.05
             if lie1 < 640:
                 anglesteer = -5 * (640 - lie1)/640
             else:
                 anglesteer = 5 * (lie1 - 640)/640
                 
-            if arrayIm.max() > 200:
-                Motors.setMotorRun(speedrun)
-                Motors.setMotorSteer(anglesteer)
-            else:
-                Motors.setMotorRun(0)
-                Motors.setMotorSteer(0)
+            Motors.setMotorRun(speedrun)
+            Motors.setMotorSteer(anglesteer)
+            #if arrayIm.max() > 200:
+            #    Motors.setMotorRun(speedrun)
+            #    Motors.setMotorSteer(anglesteer)
+            #else:
+            #    Motors.setMotorRun(0)
+            #    Motors.setMotorSteer(0)
             #print(speedrun)
             #RunStop = time.time()
             #print(PicStop - PicStart, RunStop - RunStart)

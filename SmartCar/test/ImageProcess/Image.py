@@ -21,7 +21,7 @@ def main():
             #Motors.setMotorSteer(0)
 
             while True:
-                #all_start = time.time()
+                all_start = time.time()
                 with PiCamera() as camera:
                     stream = BytesIO()
                     for foo in camera.capture_continuous(stream, format='jpeg'):
@@ -30,15 +30,14 @@ def main():
                             #PicStart = time.time()
                         stream.truncate()
                         stream.seek(0)
+                            #if process(stream):
+                                # 获取Image对象
                         image = Image.open(stream)
+                                # RGB 通道分离
                         r, g, b = image.split()
             
-                        now = datetime.now()
-                        image.save('image' + now.strftime('%H-%M-%S') + '.png')
-
                         arrayIm = numpy.array(r)
-                        if arrayIm.max() > 200:
-                            buff = numpy.where(arrayIm == arrayIm.max())
+                        buff = numpy.where(arrayIm == arrayIm.max())
                         hang = Counter(buff[0])
                         lie = Counter(buff[1])
                         hang1 = max(hang.items(), key=lambda x: x[1])[0]
@@ -46,27 +45,30 @@ def main():
                         #PicStop = time.time()
                         #RunStart = time.time()
                         if hang1 < 700:
-                            speedrun = 0.1
+                            speedrun = 0.2
                         else:
                             speedrun = 0
-                        if lie1 < 640:
-                            anglesteer = -1 * (640 - lie1)/640
-                        else:
-                            anglesteer = 1 * (lie1 - 640)/640
+                        anglesteer = 5 * (lie1 - 640) /640
+                        #if lie1 < 640:
+                        #    anglesteer = -2 * (640 - lie1)/640
+                        #else:
+                        #    anglesteer = 2 * (lie1 - 640)/640
                             
-                        if arrayIm.max() > 200:
-                            Motors.setMotorRun(speedrun)
-                            Motors.setMotorSteer(anglesteer)
-                        else:
-                            Motors.setMotorRun(0)
-                            Motors.setMotorSteer(0)
+                        Motors.setMotorRun(speedrun)
+                        Motors.setMotorSteer(anglesteer)
+                        #if arrayIm.max() > 200:
+                        #    Motors.setMotorRun(speedrun)
+                        #    Motors.setMotorSteer(anglesteer)
+                        #else:
+                        #    Motors.setMotorRun(0)
+                        #    Motors.setMotorSteer(0)
                         print(arrayIm.max(), hang1, lie1, speedrun, anglesteer)
 
                         stream.truncate()
                         stream.seek(0)
             
-                #all_end = time.time()
-                #print(all_end - all_start)
+                all_end = time.time()
+                print(all_end - all_start)
         except:
             Motors.exit()
             exit()

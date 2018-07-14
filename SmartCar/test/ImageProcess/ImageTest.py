@@ -41,16 +41,16 @@ def Init():
 def Image():
     with PiCamera() as camera:
         stream = BytesIO()
-        camera.capture_continuous(stream, format='png')
-        stream.truncate()
-        strea.seek(0)
+        for foo in camera.capture_continuous(stream, format='png'):
+            stream.truncate()
+            stream.seek(0)
 
-        image = Image.open(stream)
-        r, g, b = image.spilt()
-        r.save('/home/pi/Image/Image{counter}')
+            image = Image.open(stream)
+            r, g, b = image.spilt()
+            r.save('/home/pi/Image/Image{counter}')
  
-        stream.truncate()
-        stream.seek(0)
+            stream.truncate()
+            stream.seek(0)
 
 def main():
     Init()

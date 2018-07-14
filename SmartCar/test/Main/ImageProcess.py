@@ -9,7 +9,7 @@ import numpy
 from collections import Counter
 from L298NHBridge import HBridge
 from datetime import datetime
-    
+
 
 def main():
     while True:
@@ -33,18 +33,27 @@ def main():
                         image = Image.open(stream)
                         r, g, b = image.split()
             
-                        now = datetime.now()
-                        image.save('image' + now.strftime('%H-%M-%S') + '.png')
-
+                        # 图像转成矩阵进行简单处理
                         arrayIm = numpy.array(r)
-                        if arrayIm.max() > 200:
-                            buff = numpy.where(arrayIm == arrayIm.max())
+                        buff = numpy.where(arrayIm == arrayIm.max())
+
+                        #if arrayIm.max() > 200:
+                        #    buff = numpy.where(arrayIm == arrayIm.max())
+                        #else:
+                        #    print("arrayIm.max() = " + arrayIm.max())
+                        #    buff = numpy.where(arrayIm == arrayIm.max())
+
                         hang = Counter(buff[0])
                         lie = Counter(buff[1])
+
+                        region = (min(lie)-5, min(hang)-5, max(lie)+5, max(hang)+5)
+                        cropImage = r.crop(region)
+                        
                         hang1 = max(hang.items(), key=lambda x: x[1])[0]
                         lie1 = max(lie.items(), key=lambda x: x[1])[0]
                         #PicStop = time.time()
                         #RunStart = time.time()
+
                         if hang1 < 700:
                             speedrun = 0.1
                         else:
@@ -58,9 +67,10 @@ def main():
                             Motors.setMotorRun(speedrun)
                             Motors.setMotorSteer(anglesteer)
                         else:
-                            Motors.setMotorRun(0)
-                            Motors.setMotorSteer(0)
+                            Motors.setMotorRun(0.05)
+                            Motors.setMotorSteer(anglesteer)
                         print(arrayIm.max(), hang1, lie1, speedrun, anglesteer)
+                        
 
                         stream.truncate()
                         stream.seek(0)
