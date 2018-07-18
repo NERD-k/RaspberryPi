@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Autor:        孔NERD <smallnerd.k@gmail.com>
+# Autor:        孔NERD
 # Date:         2018-6-22
-
+# VersGPIOn:      1.0
 #Thanks for origin Autor's Ingmar Stape and kevin
 
 # This module is designed to control two motors with a L298N H-Bridge
@@ -20,14 +20,13 @@ import time
 class HBridge(object):
 
     def __init__(self, motor1_pin1, motor1_pin2, motor2_pin1, motor2_pin2, motor1pwm_pin,
-            motor2pwm_pin, steerpwm_pin):
+            motor2pwm_pin, steerpwm_pin, armpwm_pin):
         GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
         # Constant values
         self.PWM_MAX = 100
-        self.LEFT_MAX = 6.5
-        self.RIGHT_MAX = 20.5
-        self.CENTER = 13.5
+        self.LEFT_MAX = 6.2
+        self.RIGHT_MAX = 20.2
+        self.CENTER = 13.2
         # Here we configure the GPGPIO settings for the left and right motors spinning directGPIOn.
         # It defines the four GPGPIO pins used as input on the L298 H-Bridge to set the motor mode (forward, reverse and stopp).
         self.motor1_in1_pin = motor1_pin1
@@ -37,12 +36,15 @@ class HBridge(object):
         self.motor1pwm_pin = motor1pwm_pin
         self.motor2pwm_pin = motor2pwm_pin
         self.steerpwm_pin = steerpwm_pin
+        self.armpwm_pin = armpwm_pin
         self.SetupGPIO()
         self.motor1pwm = GPIO.PWM(self.motor1pwm_pin, 1000)
         self.motor2pwm = GPIO.PWM(self.motor2pwm_pin, 1000)
         self.steerpwm = GPIO.PWM(self.steerpwm_pin, 100)
+        self.armpwm = GPIO.PWM(self.armpwm_pin, 330)
         self.InitPWM()
         # Disable warning from GPIO
+        GPIO.setwarnings(False)
 
     def SetupGPIO(self):
         GPIO.setup(self.motor2_in1_pin, GPIO.OUT)
@@ -52,7 +54,7 @@ class HBridge(object):
         GPIO.setup(self.motor1pwm_pin, GPIO.OUT)
         GPIO.setup(self.motor2pwm_pin, GPIO.OUT)
         GPIO.setup(self.steerpwm_pin, GPIO.OUT)
-        
+        GPIO.setup(self.armpwm_pin, GPIO.OUT)
 
     def InitPWM(self):
         # Here we configure the GPGPIO settings for the left and right motors spinning speed.
@@ -63,6 +65,8 @@ class HBridge(object):
         self.motor2pwm.ChangeDutyCycle(0)
         self.steerpwm.start(0)
         #self.steerpwm.ChangeDutyCycle(0)
+        self.armpwm.start(0)
+        self.armpwm.ChangeDutyCycle(0)
 
     def resetMotorGPIO(self):
         GPIO.output(self.motor1_in1_pin, False)
@@ -115,7 +119,7 @@ class HBridge(object):
 # SetMotorLeft(0.75)  -> left motor moving forward at 75% power
 # SetMotorLeft(-0.5)  -> left motor moving reverse at 50% power
 # SetMotorLeft(1)     -> left motor moving forward at 100% power
-    def setMotorRun1(self, power):
+    def setMotorRun(self, power):
         if power < 0:
             # Reverse mode for the left motor
             self.setMotorMode("motor1", "reverse")
@@ -128,6 +132,7 @@ class HBridge(object):
             pwm = self.PWM_MAX * power
             if pwm > self.PWM_MAX:
                 pwm = self.PWM_MAX
+                print(pwm)
         else:
             # Stopp mode for the left motor
             self.setMotorMode("motor1", "stopp")
@@ -177,9 +182,16 @@ class HBridge(object):
             pwm = self.CENTER
         self.steerpwm.ChangeDutyCycle(pwm)
 
+    def setArm(self, power):
+        pwm = power
+        self.armpwm.ChangeDutyCycle(pwm)
+
+    def setArmBack(self, power):
+        pwm = power
+        self.armpwm.ChangeDutyCycle(pwm)
+
 # Program will clean up all GPGPIO settings and terminates
     def exit(self):
         self.resetMotorGPIO()
-        GPIO.cleanup(self.motor1_pin1, self.motor1_pin2, self.motor2_pin1, self.motor2_pin2,
-                self.motor1pwm_pin, self.motor2pwm_pin, self.steerpwm_pin)
+        GPIO.cleanup()
 
