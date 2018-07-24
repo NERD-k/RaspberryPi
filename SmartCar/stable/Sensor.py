@@ -5,38 +5,58 @@
 # Date:         2018-7-19
 
 import RPi.GPIO as GPIO
+import time
 
 class InfraredSensor(object):
-    def __init__(self, sensor1_pin, sensor2_pin):
+    def __init__(self, sensorLong_pin, sensorCenter_pin, sensorLeft_pin, sensorRight_pin):
         GPIO.setmode(GPIO.BCM)
 
-        self.sensor1_pin = sensor1_pin
-        self.sensor2_pin = sensor2_pin
+        self.sensorLong_pin = sensorLong_pin
+        self.sensorCenter_pin = sensorCenter_pin
+        self.sensorLeft_pin = sensorLeft_pin
+        self.sensorRight_pin = sensorRight_pin
 
         self.SetupGPIO()
         
         GPIO.setwarnings(False)
         
     def SetupGPIO(self):
-        GPIO.setup(self.sensor1_pin, GPIO.IN, pull_up_down=PUD_UP)
-        GPIO.setup(self.sensor2_pin, GPIO.IN, pull_up_down=PUD_UP)
+        GPIO.setup(self.sensorLong_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(self.sensorCenter_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(self.sensorLeft_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(self.sensorRight_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         
-    def GetSignal1(self):
-        if GPIO.input(self.sensor1_pin):
-            signal1 = False
+    def GetSignalLong(self):
+        if GPIO.input(self.sensorLong_pin):
+            signalLong = True
         else:
-            signal1 = True
-        return signal1
+            signalLong = False
+        return signalLong
 
-    def GetSignal2(self):
-        if GPIO.input(self.sensor2_pin):
-            signal2 = False
+    def GetSignalCenter(self):
+        if GPIO.input(self.sensorCenter_pin):
+            signalCenter = False
         else:
-            signal2 = True
-        return signal2
+            signalCenter = True
+        return signalCenter
+
+    def GetSignalLeft(self):
+        if GPIO.input(self.sensorLeft_pin):
+            signalLeft = False
+        else:
+            signalLeft = True
+        return signalLeft
+
+    def GetSignalRight(self):
+        if GPIO.input(self.sensorRight_pin):
+            signalRight = False
+        else:
+            signalRight = True
+        return signalRight
 
     def exit(self):
-        GPIO.cleanup(self.sensor1_pin, self.sensor2_pin)
+        GPIO.cleanup(self.sensorLong_pin, self.sensorCenter_pin, self.sensorLeft_pin,
+                self.sensorRight_pin)
         
     
         
