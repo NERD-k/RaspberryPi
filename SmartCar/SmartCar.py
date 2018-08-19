@@ -4,55 +4,43 @@
 # Author:       孔NERD <smallnerd.k@gmail.com>
 # Date:         2018-7-13
 
-from multiprocessing import Process, Pipe
+from multiprocessing import Process, Queue
 from picamera import PiCamera
-#import picamera.array
 import time
-#import numpy
-#from collections import Counter
+from collections import Counter
 import cv2
 from picamera.array import PiRGBArray
 from L298NHBridge import HBridge
+from Sensor import InfraredSensor
+from PIL import Image
+import numpy
 
+Motors = HBridge(19, 26, 23, 24, 13, 25, 5, 6)
+Sensor = InfraredSensor(12, 16, 20, 21)
 
-def carControl(light, row, col):
-    if light:
-        if row < 450:
-            speedRun = 0.05
-        else:
-            speedRun = 0
-        angleSteer = 3 * (col - 340) / 340
-        Motors.setMotorRun(speedRun)
-        Motors.setMotorSteer(angleSteer)
-    else:
-        speedRun = -0.05
-        Motors.setMotorRun(speedRun)
-        #time.sleep(0.5)
-
-    #print(speedRun, angleSteer)
-
-def func(p):
+def funcImage(q):
    with PiCamera() as camera:
-        camera.resolution = (640, 480)
-        camera.framerate = 32
-        rawCapture = PiRGBArray(camera, size=(640, 480))
-        print(time.time())
+        camera.resolution = (960, 120)
+        camera.framerate = 100
+        rawCapture = PiRGBArray(camera, size=(960, 120))
         time.sleep(0.2)
-        for frame in camera.capture_continuous(rawCapture, format='rgb'):
+        for frame in camera.capture_continuous(rawCapture, format='rgb', use_video_port=True):
             # Truncate the stream to the current position (in case
             # prior iterations output a longer image)
-            print(time.time())
-            Temp = time.time()
- 
-            image = frame.array
-            #arrayIm = image
-            #arrayIm = numpy.array(image)
-            arrayR = image[:, :, 0]
 
-            blurred = cv2.GaussianBlur(arrayR, (5, 5), 0)
-            ret, binary = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)
+            time_image = time.time()
+            image = frame.array
+
+            array = image[:, :, 0]
+            arrayR = numpy.array(array)
+            MAX = arrayR.max()
+
+            #arrayR[numpy.where(image[:, :, 1] > 210)] = 0
+            #arrayR[numpy.where(image[:, :, 2] > 210)] = 0
+            #blurred = cv2.GaussianBlur(arrayR, (32, 32), 0)
+            ret, binary = cv2.threshold(arrayR, MAX-10, 255, cv2.THRESH_BINARY)
             _, contours, hierarchy = cv2.findContours(binary.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
+
             col = 0
             row = 0
             if len(contours) > 0:
@@ -65,45 +53,129 @@ def func(p):
             else:
                 light = False
 
-            #buff = numpy.where(arrayR == arrayR.max())
-            #hang = Counter(buff[0])
-            #lie = Counter(buff[1])
-            #hang1 = max(hang.items(), key=lambda x: x[1])[0]
-            #lie1 = max(lie.items(), key=lambda x: x[1])[0]
-            #if hang1 < 350:
-            #    speedrun = 0.05
-            #else:
-            #    speedrun = 0
-            #anglesteer = 3 * (lie1 - 240) / 240
-            
-            #speedRun = 0.05
-            #angleSteer = 3 * (lie - 240) / 240
-
-            p.send(time.time())
-            #p.send([light, row, col])
-            #print(lignt, row, col)
-            #p.send(arrayR)
+            #R, G, B = image[row, col, :]
+            q.put([light, row, col, time_image])
             rawCapture.truncate(0)
-            print("all:", time.time()-Temp)
 
 def main():
     try:
-        parent_side, child_side = Pipe()
-        p = Process(target=func, args=(child_side,))
-        p.start()
-        global Motors
-        Motors = HBridge(19, 26, 23, 24, 13, 21, 18)
+        q = Queue()
+        image = Process(target=funcImage, args=(q,))
+
+        image.start()
+
+        time.sleep(2)
+        TIME = 0
+        #list = [False, 0, 0]
+        moderate, moderateFlag, stopCenter, stopLeft, stopRight = [False, False, False, False, False]
+
         while True:
-            temp = time.time()
-            #list = parent_side.recv()
-            child_time = parent_side.recv()
-            print("before:", temp - child_time)
-            print(time.time() - child_time)
-            print("Wait: ", time.time() - temp)
-            #carControl(*list)
-            #print(list)
-            print("All: ", time.time() - temp)
-        #p.join()
+            # 进程间通信，获取目标光源在图像中的信息
+            #timeQueue = time.time()
+            if q.empty():
+                pass
+            else:
+                list = q.get()
+
+            # 传感器
+            if len(list) == 4:
+                light, row, col, time_image = list
+                if TIME != time_image:
+                    print(time.time() - TIME)
+                    TIME = time_image
+            else:
+                light, row, col = list
+            #light, row, col = list
+            moderate = Sensor.GetSignalLong()
+            stopCenter = Sensor.GetSignalCenter()
+            stopLeft = Sensor.GetSignalLeft()
+            stopRight = Sensor.GetSignalRight()
+
+            # 小车运动控制
+            if light:
+                angleSteer = 3 * (col - 480) / 480
+                if row < 50:
+                    speedRun = 0.03
+                    moderateFlag = False
+                elif not moderate:
+                    speedRun = 0.03
+                    moderateFlag = False
+                #angleSteer = 3 * (col - 340) / 340
+                elif moderateFlag:
+                    speedRun = 0.0000001
+                    Motors.setMotorRun(speedRun)
+                    while stopCenter or stopLeft or stopRight:
+                        speedRun = 0
+                        Motors.setMotorRun(speedRun)
+                        time.sleep(0.01)
+                        speedRun = -0.1
+                        Motors.setMotorRun(speedRun)
+                        time.sleep(0.05)
+                        speedRun = 0
+                        Motors.setMotorRun(speedRun)
+
+                        Motors.setArm(99)
+                        time.sleep(0.7)
+                        Motors.setArmBack(1)
+                        time.sleep(0.5)
+                        angleSteer = 0
+                        Motors.setMotorSteer(angleSteer)
+                        Motors.setMotorRun(-0.2)
+                        time.sleep(0.3)
+                        Motors.setMotorRun(0)
+                        moderateFlag = False
+                        stopCenter = False
+                        stopLeft = False
+                        stopRight = False
+                    #else:
+                    #    speedRun = 0.0000001
+                else:
+                    Motors.setMotorRun(0)
+                    time.sleep(0.05)
+                    Motors.setMotorRun(-0.4)
+                    time.sleep(0.15)
+                    speedRun = 0.0000001
+                    moderateFlag = True 
+
+                Motors.setMotorRun(speedRun)
+                Motors.setMotorSteer(angleSteer)
+
+            else:
+                if moderate or stopCenter or stopLeft or stopRight:
+                    speedRun = 0
+                    angleSteer = 0
+                    Motors.setMotorSteer(angleSteer)
+                    Motors.setMotorRun(speedRun)
+                    time.sleep(0.05)
+                    #speedRun = -0.5
+                    #angleSteer = 0
+                    #Motors.setMotorSteer(angleSteer)
+                    #Motors.setMotorRun(speedRun)
+                    #time.sleep(0.2)
+                    speedRun = -0.1
+                    angleSteer = -5.5
+                    Motors.setMotorSteer(angleSteer)
+                    Motors.setMotorRun(speedRun)
+                    time.sleep(0.2)
+                    speedRun = 0
+                    Motors.setMotorRun(speedRun)
+                    time.sleep(0.05)
+                    speedRun = 0.05
+                    angleSteer = 5.5
+                    Motors.setMotorSteer(angleSteer)
+                    Motors.setMotorRun(speedRun)
+
+                else:
+                    speedRun = 0.05
+                    angleSteer = 5.5
+                    Motors.setMotorSteer(angleSteer)
+                    Motors.setMotorRun(speedRun)
+                #time.sleep(0.5)
+
+            #print(speedRun, angleSteer, moderate, moderateFlag, stop)
+            print(*list, moderate, moderateFlag, stopCenter, stopLeft, stopRight)
+            #print("All: ", time.time() - timeQueue, "\tImage: ",timePipe - timeQueue, "\tPipe: ",
+            #        timeControl - timePipe, "\tControl: ", time.time() - timeControl)
         #if time.time() < temp+10:
         #    print(parent_side.recv())
         #    time.sleep(0.5)
@@ -113,6 +185,7 @@ def main():
         pass
     except KeyboardInterrupt:
         Motors.exit()
+        Sensor.exit()
         pass
 
 if __name__ == "__main__":
